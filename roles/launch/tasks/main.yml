@@ -1,0 +1,122 @@
+---
+- name: Create network
+  docker_network:
+    attachable: yes
+    driver: overlay
+    name: "{{ public_network }}"
+    state: present
+
+- name: Create network
+  docker_network:
+    attachable: yes
+    driver: overlay
+    name: "{{ private_network }}"
+    state: present
+
+- name: Launch
+  block:
+    - name: RPC
+      docker_swarm_service:
+        command: "/bin/sh -c 'git clone https://github.com/Pupmos/kennel /usr/src/kennel && make rpc-launch -C /usr/src/kennel'"
+        endpoint_mode: dnsrr
+        env:
+          CHAIN_ID: "{{ chain_id }}"
+          BINARY: "{{ binary }}"
+          ROOT: "{{ root }}"
+          GENESIS_URL: "{{ genesis_url }}"
+          STATE_SYNC_HOST: "{{ state_sync_host|default('') }}"
+          SNAPSHOT_URL: "{{ snapshot_url|default('') }}"
+          SNAPSHOT_TYPE: "{{ snapshot_type|default('') }}"
+          UPGRADE: "{{ upgrade }}"
+          SEEDS: "{{ seeds }}"
+          PERSISTENT_PEERS: "{{ persistent_peers }}"
+          MINIMUM_GAS_PRICES: "{{ minimum_gas_prices }}"
+          DB_BACKEND: "{{ db_backend }}"
+        hostname: "{{ service_name | default(user) }}-{{ service_type }}-{%raw%}{{.Task.Slot}}{%endraw%}"
+        image: "{{ image }}"
+        labels:
+          network.pupmos.kennel.service_type: "{{ service_type }}"
+        mounts:
+          - source: "{{ service_name | default(user) }}"
+            target: /root
+            type: volume
+        name: "{{ service_name | default(user) }}"
+        networks:
+          - "{{ private_network }}"
+        placement:
+          constraints:
+            - "node.hostname == {{ node }}"
+        replicas: "{{ replicas }}"
+        restart_config:
+          condition: any
+      when: service_type == "rpc"
+
+    - name: Proxy
+      docker_swarm_service:
+        image: "{{ image }}"
+        labels:
+          network.pupmos.kennel.service_type: "{{ service_type }}"
+        mode: global
+        name: proxy
+        networks:
+          - "{{ public_network }}"
+          - "{{ private_network }}"
+        placement:
+          constraints:
+            - "node.hostname != {{ exclude_node }}"
+        publish:
+          - mode: host
+            published_port: 443
+            target_port: 443
+          - mode: host
+            published_port: 80
+            target_port: 80
+          - mode: host
+            published_port: 81
+            target_port: 81
+        restart_config:
+          condition: any
+        secrets:
+          - secret_name: ssl_certificate.pem
+            filename: "/run/secrets/ssl_certificate.pem"
+          - secret_name: ssl_certificate_key.pem
+            filename: "/run/secrets/ssl_certificate_key.pem"
+      when: service_type == "proxy"
+
+    - name: Seed
+      docker_swarm_service:
+        env:
+          ID: "{{ chain_id }}"
+          SEEDS: "{{ seeds }}"
+        image: "{{ image }}"
+        labels:
+          network.pupmos.kennel.service_type: "{{ service_type }}"
+        name: "{{ service_name }}-seed"
+        networks:
+          - "{{ public_network }}"
+          - "{{ private_network }}"
+        placement:
+          constraints:
+            - "node.hostname == {{ node }}"
+        replicas: "{{ replicas }}"
+        restart_config:
+          condition: any
+      when: service_type == "seed"
+
+    - name: Monitor
+      docker_swarm_service:
+        env:
+          DD_API_KEY: "{{ dd_api_key }}"
+        image: "{{ image }}"
+        labels:
+          network.pupmos.kennel.service_type: "{{ service_type }}"
+        name: monitor
+        networks:
+          - "{{ private_network }}"
+        placement:
+          constraints:
+            - "node.hostname == {{ node }}"
+        replicas: "{{ replicas }}"
+        restart_config:
+          condition: any
+      when: service_type == "monitor"

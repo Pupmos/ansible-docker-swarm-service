@@ -1,0 +1,82 @@
+---
+- name: Upgrade
+  block:
+    - name: RPC
+      docker_swarm_service:
+        command: "/bin/sh -c 'git clone https://github.com/Pupmos/kennel /usr/src/kennel && make rpc-upgrade -C /usr/src/kennel'"
+        endpoint_mode: dnsrr
+        env:
+          BINARY: "{{ binary }}"
+          ROOT: "{{ root }}"
+          UPGRADE: "{{ upgrade }}"
+        force_update: yes
+        hostname: "{{ service_name | default(user) }}-{{ service_type }}-{%raw%}{{.Task.Slot}}{%endraw%}"
+        image: "{{ image }}"
+        labels:
+          network.pupmos.kennel.service_type: "{{ service_type }}"
+        mounts:
+          - source: "{{ service_name | default(user) }}"
+            target: /root
+            type: volume
+        name: "{{ service_name | default(user) }}"
+        networks:
+          - "{{ private_network }}"
+        placement:
+          constraints:
+            - "node.hostname == {{ node }}"
+        replicas: "{{ replicas }}"
+        restart_config:
+          condition: any
+      when: service_type == "rpc"
+
+    - name: Proxy
+      docker_swarm_service:
+        force_update: yes
+        image: "{{ image }}"
+        labels:
+          network.pupmos.kennel.service_type: "{{ service_type }}"
+        mode: global
+        name: proxy
+        networks:
+          - "{{ public_network }}"
+          - "{{ private_network }}"
+        placement:
+          constraints:
+            - "node.hostname != {{ exclude_node }}"
+        publish:
+          - mode: host
+            published_port: 443
+            target_port: 443
+          - mode: host
+            published_port: 80
+            target_port: 80
+          - mode: host
+            published_port: 81
+            target_port: 81
+        restart_config:
+          condition: any
+        secrets:
+          - secret_name: ssl_certificate.pem
+            filename: "/run/secrets/ssl_certificate.pem"
+          - secret_name: ssl_certificate_key.pem
+            filename: "/run/secrets/ssl_certificate_key.pem"
+      when: service_type == "proxy"
+
+    - name: Monitor
+      docker_swarm_service:
+        env:
+          DD_API_KEY: "{{ dd_api_key }}"
+        force_update: yes
+        image: "{{ image }}"
+        labels:
+          network.pupmos.kennel.service_type: "{{ service_type }}"
+        name: monitor
+        networks:
+          - "{{ private_network }}"
+        placement:
+          constraints:
+            - "node.hostname == {{ node }}"
+        replicas: "{{ replicas }}"
+        restart_config:
+          condition: any
+      when: service_type == "monitor"

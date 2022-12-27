@@ -1,0 +1,8 @@
+- name: Upgrade
+  hosts: "{{ target }}"
+  become: true
+  roles:
+    - upgrade
+  vars:
+    public_network: kennel
+    private_network: internal

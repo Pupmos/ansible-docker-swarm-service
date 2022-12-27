@@ -1,0 +1,8 @@
+- name: Launch
+  hosts: "{{ target }}"
+  become: true
+  roles:
+    - launch
+  vars:
+    public_network: kennel
+    private_network: internal
