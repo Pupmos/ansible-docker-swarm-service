@@ -1,6 +1,6 @@
 # Ansible
 
-An ansible playbook for deploying services on a Docker swarm cluster.
+An ansible playbook for deploying services on a Docker Swarm cluster.
 
 ## Prerequisites
 
