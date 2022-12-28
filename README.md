@@ -1,6 +1,6 @@
 # Pupmos/ansible-docker-swarm-service
 
-An Ansible playbook for deploying services on a Docker Swarm cluster.
+An Ansible playbook for Docker Swarm services.
 
 ## Prerequisites
 
