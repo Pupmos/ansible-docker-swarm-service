@@ -1,4 +1,4 @@
-# Ansible
+# Pupmos/ansible-docker-swarm-service
 
 An ansible playbook for deploying services on a Docker Swarm cluster.
 
@@ -13,9 +13,7 @@ _Ideally ansible should be installed via [pip](https://pip.pypa.io/en/stable/), 
 
 This README assumes that you've already installed `debian` or `ubuntu` onto the target environment/s.
 
-## Ansible
-
-### Setup
+## Setup
 
 1. Install the required git submodule dependencies:
 
@@ -34,3 +32,14 @@ ansible-galaxy collection install community.general
 ```console
 cp inventory/hosts.example inventory/hosts
 ```
+
+## Types
+
+The following service types are supported:
+
+- [RPC](RPC.md)
+- [Proxy](PROXY.md)
+
+## Known Issues
+
+* When an RPC service is upgraded, the proxy service has to be re-deployed. This is a bug with how internal DNS lookups are performed/cached.

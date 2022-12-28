@@ -15,10 +15,6 @@ ifdef REPLICAS
 	REPLICAS_OPTS = 'replicas=$(REPLICAS)'
 endif
 
-ifdef SEEDS
-	SEED_OPTS = 'seeds=$(SEEDS)'
-endif
-
 ifdef STATE_SYNC_HOST
 	RESTORE_OPTS = 'state_sync_host=$(STATE_SYNC_HOST)'
 endif
@@ -40,7 +36,7 @@ ifdef DD_API_KEY
 endif
 
 launch:
-	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(CHAIN_ID_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) $(SEED_OPTS) service_type=$(SERVICE_TYPE) $(RESTORE_OPTS) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) launch.yml
+	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(CHAIN_ID_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(RESTORE_OPTS) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) launch.yml
 
 upgrade:
 	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) upgrade.yml

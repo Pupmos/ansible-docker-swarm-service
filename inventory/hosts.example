@@ -1,4 +1,5 @@
 [chihuahua-1]
+chihuahua-1 ansible_host=1.2.3.4
 
 [cosmoshub-4]
 
@@ -29,6 +30,8 @@
 [teritori-1]
 
 [all:vars]
-exclude_node=""
 ansible_connection=ssh
 ansible_user=root
+exclude_node=
+replicas=1
+db_backend=
