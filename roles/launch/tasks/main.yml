@@ -27,6 +27,7 @@
           STATE_SYNC_HOST: "{{ state_sync_host|default('') }}"
           SNAPSHOT_URL: "{{ snapshot_url|default('') }}"
           SNAPSHOT_TYPE: "{{ snapshot_type|default('') }}"
+          ADDRESS_BOOK_URL: "{{ address_book_url|default('') }}"
           UPGRADE: "{{ upgrade }}"
           SEEDS: "{{ seeds }}"
           PERSISTENT_PEERS: "{{ persistent_peers }}"

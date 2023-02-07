@@ -11,6 +11,10 @@ ifdef SERVICE_ID
 	TARGET_HOST_OPTS = '-l $(SERVICE_ID)'
 endif
 
+ifdef SERVICE_NAME
+	SERVICE_NAME_OPTS = 'service_name=$(SERVICE_NAME)'
+endif
+
 ifdef REPLICAS
 	REPLICAS_OPTS = 'replicas=$(REPLICAS)'
 endif
@@ -21,6 +25,14 @@ endif
 
 ifdef SNAPSHOT_URL
 	RESTORE_OPTS = 'snapshot_url=$(SNAPSHOT_URL)'
+endif
+
+ifdef SNAPSHOT_TYPE
+	SNAPSHOT_OPTS = 'snapshot_type=$(SNAPSHOT_TYPE)'
+endif
+
+ifdef ADDRESS_BOOK_URL
+	ADDRESS_BOOK_OPTS = 'address_book_url=$(ADDRESS_BOOK_URL)'
 endif
 
 ifdef NODE
@@ -36,7 +48,7 @@ ifdef DD_API_KEY
 endif
 
 launch:
-	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(CHAIN_ID_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(RESTORE_OPTS) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) launch.yml
+	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(SERVICE_NAME_OPTS) $(CHAIN_ID_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(RESTORE_OPTS) $(SNAPSHOT_OPTS) $(ADDRESS_BOOK_OPTS) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) launch.yml
 
 upgrade:
-	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) upgrade.yml
+	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(SERVICE_NAME_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) upgrade.yml
