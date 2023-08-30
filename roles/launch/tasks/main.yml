@@ -33,12 +33,12 @@
           PERSISTENT_PEERS: "{{ persistent_peers }}"
           MINIMUM_GAS_PRICES: "{{ minimum_gas_prices }}"
           DB_BACKEND: "{{ db_backend }}"
-        hostname: "{{ service_name | default(user) }}-{{ service_type }}-{%raw%}{{.Task.Slot}}{%endraw%}"
+        hostname: "{{ service_name | default(user) }}"
         image: "{{ image }}"
         labels:
           network.pupmos.kennel.service_type: "{{ service_type }}"
         mounts:
-          - source: "{{ service_name | default(user) }}"
+          - source: "{{ service_name | default(user) }}-{%raw%}{{.Task.Slot}}{%endraw%}"
             target: /root
             type: volume
         name: "{{ service_name | default(user) }}"
