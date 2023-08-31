@@ -6,16 +6,19 @@
         command: "/bin/sh -c 'git clone https://github.com/Pupmos/kennel /usr/src/kennel && make rpc-upgrade -C /usr/src/kennel'"
         endpoint_mode: dnsrr
         env:
+          CHAIN_ID: "{{ chain_id }}"
           BINARY: "{{ binary }}"
           ROOT: "{{ root }}"
           UPGRADE: "{{ upgrade }}"
+          SEEDS: "{{ seeds }}"
+          PERSISTENT_PEERS: "{{ persistent_peers }}"
         force_update: yes
-        hostname: "{{ service_name | default(user) }}-{{ service_type }}-{%raw%}{{.Task.Slot}}{%endraw%}"
+        hostname: "{{ service_name | default(user) }}"
         image: "{{ image }}"
         labels:
           network.pupmos.kennel.service_type: "{{ service_type }}"
         mounts:
-          - source: "{{ service_name | default(user) }}"
+          - source: "{{ service_name | default(user) }}-{%raw%}{{.Task.Slot}}{%endraw%}"
             target: /root
             type: volume
         name: "{{ service_name | default(user) }}"
