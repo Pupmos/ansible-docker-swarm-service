@@ -47,8 +47,16 @@ ifdef DD_API_KEY
 	DD_OPTS = 'dd_api_key=$(DD_API_KEY)'
 endif
 
+ifdef PERSISTENT_PEERS
+	PERSISTENT_PEERS_OPTS = 'persistent_peers=$(PERSISTENT_PEERS)'
+endif
+
+ifdef SEEDS
+	SEEDS_OPTS = 'seeds=$(SEEDS)'
+endif
+
 launch:
-	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(SERVICE_NAME_OPTS) $(CHAIN_ID_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(RESTORE_OPTS) $(SNAPSHOT_OPTS) $(ADDRESS_BOOK_OPTS) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) launch.yml
+	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(SERVICE_NAME_OPTS) $(CHAIN_ID_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(RESTORE_OPTS) $(SNAPSHOT_OPTS) $(ADDRESS_BOOK_OPTS) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS) $(SEEDS_OPTS) $(PERSISTENT_PEERS_OPTS)' $(TARGET_HOST_OPTS) launch.yml
 
 upgrade:
 	@ansible-playbook -i inventory/hosts -e '$(TARGET_OPTS) $(SERVICE_NAME_OPTS) image=$(IMAGE) $(REPLICAS_OPTS) service_type=$(SERVICE_TYPE) $(NODE_OPTS) $(DB_BACKEND_OPTS) $(DD_OPTS)' $(TARGET_HOST_OPTS) upgrade.yml
